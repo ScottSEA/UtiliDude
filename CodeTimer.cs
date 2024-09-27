@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 
 namespace UtiliDude
 {
@@ -31,6 +33,33 @@ namespace UtiliDude
         }
 
         public void Dispose() => Stop();
+
+
+        public static void Time(Delegate action)
+        {
+            string methodName = action.Method.Name;
+            Action actionToInvoke = action as Action ?? (() => action.DynamicInvoke());
+            Time(actionToInvoke, methodName);
+        }
+
+        public static void Time(Expression<Action> actionExpression)
+        {
+            if (actionExpression.Body is MethodCallExpression methodCall)
+            {
+                string methodName = methodCall.Method.Name;
+                Action actionToInvoke = actionExpression.Compile();
+                Time(actionToInvoke, methodName);
+            }
+            else
+            {
+                throw new ArgumentException("The expression must be a method call.");
+            }
+        }
+
+        private static void Time(Action action, string methodName)
+        {
+            using (Start(methodName)) { action(); }
+        }
 
         private void Lock(Action action)
         {
