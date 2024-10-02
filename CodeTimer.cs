@@ -1,69 +1,105 @@
 ﻿using System;
 using System.Diagnostics;
+
+#if !NET20
 using System.Linq.Expressions;
-using System.Runtime.CompilerServices;
+#endif
+
+#if !NET20 && !NET35
+using System.Threading.Tasks;
+#endif
 
 namespace UtiliDude
 {
-    public class CodeTimer : IDisposable
-    {
-        private readonly Stopwatch _stopwatch;
-        private readonly string _name;
-        private static readonly object _lock = new object();
+   public class CodeTimer : IDisposable
+   {
+      private readonly Stopwatch _stopwatch;
+      private readonly string _name;
+      private static readonly object _lock = new object();
 
-        private CodeTimer(string name)
-        {
-            _name = string.IsNullOrWhiteSpace(name)
-                ? throw new ArgumentException($"'{nameof(name)}' cannot be null or whitespace.", nameof(name))
-                : name;
+      private CodeTimer(string name)
+      {
+         _name = string.IsNullOrWhiteSpace(name)
+             ? throw new ArgumentException($"'{nameof(name)}' cannot be null or whitespace.", nameof(name))
+             : name;
 
-            _stopwatch = Stopwatch.StartNew();
+         _stopwatch = Stopwatch.StartNew();
 
-            Debug.WriteLine($" →→ Starting {_name} timer.");
-            Lock(() => Debug.Indent());
-        }
+#if DEBUG
+         Debug.WriteLine($"Starting {_name} timer.");
+#if !NET20
+         ExecuteWithLock(() => Debug.Indent());
+#endif
+#endif
+      }
 
-        public static IDisposable Start(string name) => new CodeTimer(name);
+      public static IDisposable Start(string name) => new CodeTimer(name);
 
-        public void Stop()
-        {
+      public void Stop()
+      {
+         if (_stopwatch.IsRunning)
+         {
             _stopwatch.Stop();
-            Lock(() => Debug.Unindent());
+
+#if DEBUG
+#if !NET20
+            ExecuteWithLock(() => Debug.Unindent());
+#endif
             Debug.WriteLine($" ←← {_name} took {_stopwatch.ElapsedMilliseconds}ms.");
-        }
+#endif
+         }
+      }
 
-        public void Dispose() => Stop();
+      public void Dispose() => Stop();
 
+      // Time for synchronous Actions
+      public static void Time(Action action) => TimeInternal(action, action.Method.Name);
 
-        public static void Time(Delegate action)
-        {
-            string methodName = action.Method.Name;
-            Action actionToInvoke = action as Action ?? (() => action.DynamicInvoke());
-            Time(actionToInvoke, methodName);
-        }
+#if !NET20
+      // Time for Expression-based Actions (not available in .NET 2.0)
+      public static void Time(Expression<Action> actionExpression)
+      {
+         if (actionExpression.Body is MethodCallExpression methodCall)
+         {
+            string methodName = methodCall.Method.Name;
+            Action actionToInvoke = actionExpression.Compile();
+            TimeInternal(actionToInvoke, methodName);
+         }
+         else
+         {
+            throw new ArgumentException("The expression must be a method call.");
+         }
+      }
+#endif
 
-        public static void Time(Expression<Action> actionExpression)
-        {
-            if (actionExpression.Body is MethodCallExpression methodCall)
-            {
-                string methodName = methodCall.Method.Name;
-                Action actionToInvoke = actionExpression.Compile();
-                Time(actionToInvoke, methodName);
-            }
-            else
-            {
-                throw new ArgumentException("The expression must be a method call.");
-            }
-        }
+      private static void TimeInternal(Action action, string methodName)
+      {
+         using (Start(methodName))
+         {
+            action();
+         }
+      }
 
-        private static void Time(Action action, string methodName)
-        {
-            using (Start(methodName)) { action(); }
-        }
+#if !NET20 && !NET35
+      // Time for async Func<Task> (not available in .NET 2.0 and .NET 3.5)
+      public static async Task TimeAsync(Func<Task> action)
+      {
+         string methodName = action.Method.Name;
+         await TimeInternal(action, methodName);
+      }
 
-        private void Lock(Action action)
-        {
-            lock (_lock) { action(); }
-        }
-    }
+      private static async Task TimeInternal(Func<Task> action, string methodName)
+      {
+         using (Start(methodName))
+         {
+            await action();
+         }
+      }
+#endif
+
+      private void ExecuteWithLock(Action action)
+      {
+         lock (_lock) { action(); }
+      }
+   }
 }
