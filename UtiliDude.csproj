@@ -8,4 +8,8 @@
 		<Description>UtiliDude is a collection of utility classes and extension methods for .NET development.</Description>
 	</PropertyGroup>
 
+	<ItemGroup>
+	  <None Include=".github\workflows\publish.yml" />
+	</ItemGroup>
+
 </Project>
