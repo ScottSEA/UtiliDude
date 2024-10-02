@@ -1,7 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>netstandard2.0</TargetFramework>
+		<PackageId>ScottSEA.UtiliDude</PackageId>
+		<Version>1.0.0</Version>
+		<Authors>Scott Baker</Authors>
+		<Description>UtiliDude is a collection of utility classes and extension methods for .NET development.</Description>
+	</PropertyGroup>
 
 </Project>
