@@ -19,7 +19,7 @@ namespace UtiliDude
 
       private CodeTimer(string name)
       {
-         _name = string.IsNullOrWhiteSpace(name)
+         _name = name.IsNullOrWhiteSpace()
              ? throw new ArgumentException($"'{nameof(name)}' cannot be null or whitespace.", nameof(name))
              : name;
 
