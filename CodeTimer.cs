@@ -55,8 +55,8 @@ namespace UtiliDude
       // Time for synchronous Actions
       public static void Time(Action action) => TimeInternal(action, action.Method.Name);
 
-#if !NET20
-      // Time for Expression-based Actions (not available in .NET 2.0)
+#if !NET20 && !NET35
+      // Time for Expression-based Actions (not available in .NET 2.0 and .NET 3.5)
       public static void Time(Expression<Action> actionExpression)
       {
          if (actionExpression.Body is MethodCallExpression methodCall)
@@ -70,17 +70,7 @@ namespace UtiliDude
             throw new ArgumentException("The expression must be a method call.");
          }
       }
-#endif
 
-      private static void TimeInternal(Action action, string methodName)
-      {
-         using (Start(methodName))
-         {
-            action();
-         }
-      }
-
-#if !NET20 && !NET35
       // Time for async Func<Task> (not available in .NET 2.0 and .NET 3.5)
       public static async Task TimeAsync(Func<Task> action)
       {
@@ -96,6 +86,14 @@ namespace UtiliDude
          }
       }
 #endif
+
+      private static void TimeInternal(Action action, string methodName)
+      {
+         using (Start(methodName))
+         {
+            action();
+         }
+      }
 
       private void ExecuteWithLock(Action action)
       {

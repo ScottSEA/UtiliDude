@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>netstandard2.0</TargetFramework>
+		<TargetFrameworks>netstandard2.0;net35</TargetFrameworks>
 		<PackageId>ScottSEA.UtiliDude</PackageId>
 		<Version>1.0.2</Version>
 		<Authors>Scott Baker</Authors>
@@ -16,14 +16,14 @@
 	</PropertyGroup>
 
 	<ItemGroup>
-	  <None Include=".github\workflows\publish.yml" />
+   <None Include=".github\workflows\publish.yml" />
 	</ItemGroup>
 
 	<ItemGroup>
-	  <None Update="README.md">
-	    <Pack>True</Pack>
-	    <PackagePath>\</PackagePath>
-	  </None>
+   <None Update="README.md">
+     <Pack>True</Pack>
+     <PackagePath>\</PackagePath>
+   </None>
 	</ItemGroup>
 
 	<PropertyGroup Condition=" '$(TargetFramework)' == 'net20' ">
