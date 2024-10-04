@@ -3,7 +3,7 @@
 	<PropertyGroup>
 		<TargetFrameworks>netstandard2.0;net35</TargetFrameworks>
 		<PackageId>ScottSEA.UtiliDude</PackageId>
-		<Version>1.0.3</Version>
+		<Version>1.0.4</Version>
 		<Authors>Scott Baker</Authors>
 		<Description>UtiliDude is a collection of utility classes and extension methods for .NET development.</Description>
 		<Title>Utili-Dude, The Dude's Utility Collection</Title>
@@ -23,6 +23,7 @@
    <None Update="README.md">
      <Pack>True</Pack>
      <PackagePath>\</PackagePath>
+     <CopyToOutputDirectory>Always</CopyToOutputDirectory>
    </None>
 	</ItemGroup>
 
